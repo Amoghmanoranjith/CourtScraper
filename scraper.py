@@ -1,6 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
-
+import json
+import re
 class Scraper:
     def __init__(self):
         self.url = "https://delhihighcourt.nic.in/app/get-case-type-status"
@@ -54,8 +55,17 @@ class Scraper:
                     pdfLinks.append(a_tag['href'])
             return pdfLinks
         except ValueError:
-            print("Failed to parse JSON.")
+            # print("Failed to parse JSON.")
             return []
+
+    def getDates(orderdate_str):
+        next_date_match = re.search(r'NEXT DATE:\s*([^\r\n<]+)', orderdate_str)
+        last_date_match = re.search(r'Last Date:\s*([^\r\n<]+)', orderdate_str)
+
+        next_date = next_date_match.group(1).strip() if next_date_match else None
+        last_date = last_date_match.group(1).strip() if last_date_match else None
+
+        return next_date, last_date
 
     def scrape(self, **kwargs):
         """
@@ -69,35 +79,44 @@ class Scraper:
             "case_year": kwargs.get("case_year"),
         })
 
-        print(f"\n🔍 Searching for Case: {kwargs['case_type']} {kwargs['case_number']}/{kwargs['case_year']}")
+        # print(f"\n🔍 Searching for Case: {kwargs['case_type']} {kwargs['case_number']}/{kwargs['case_year']}")
         response = requests.get(self.url, headers=self.headers, params=self.params)
-        print("📶 Status code:", response.status_code)
+        # print("📶 Status code:", response.status_code)
         if response.status_code != 200:
-            print("❌ Request failed.")
+            # print("❌ Request failed.")
             return
 
         try:
             data = response.json()['data'][0]
         except (ValueError, IndexError, KeyError):
-            print("❌ Failed to parse or no data available.")
+            # print("❌ Failed to parse or no data available.")
             return
 
         petitioner = data['pet'].split("<br>")[0]
         respondent = data['res']
         petitioner = petitioner.replace("&amp;", "&")
         respondent = respondent.replace("&amp;", "&")
-        print(f"👤 Petitioner: {petitioner}")
-        print(f"👥 Respondent: {respondent}")
+        # print(f"👤 Petitioner: {petitioner}")
+        # print(f"👥 Respondent: {respondent}")
+        cleaned_orderdate = data['orderdate']
+        # next_date, last_date = self.getDates(cleaned_orderdate)
+        next_date_match = re.search(r'NEXT DATE:\s*([^\r\n<]+)', cleaned_orderdate)
+        last_date_match = re.search(r'Last Date:\s*([^\r\n<]+)', cleaned_orderdate)
 
+        next_date = next_date_match.group(1).strip() if next_date_match else None
+        last_date = last_date_match.group(1).strip() if last_date_match else None
+
+        print("Next Date:", next_date)
+        print("Last Date:", last_date)
         pdf_soup = BeautifulSoup(data['ctype'], 'html.parser')
         links = pdf_soup.find_all('a')
         if len(links) < 2:
-            print("❌ No valid PDF link found.")
+            # print("❌ No valid PDF link found.")
             return
 
         pdf_link = links[1]['href']
 
         pdfLinks = self.getPDFLinks(pdf_link)
-        print("📎 PDF Order Links:")
+        # print("📎 PDF Order Links:")
         for link in pdfLinks:
             print("   ➤", link)
