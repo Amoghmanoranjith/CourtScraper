@@ -45,7 +45,7 @@ class Scraper:
 
     def getPDFLinks(self, url):
         pdfLinks = []
-        response = requests.get(url, params=self.params, headers=self.headers)
+        response = requests.get(url, headers=self.headers)
         try:
             data = response.json()["data"]
             for item in data:
@@ -57,15 +57,6 @@ class Scraper:
         except ValueError:
             print("Failed to parse JSON.")
             return []
-
-    def getDates(orderdate_str):
-        next_date_match = re.search(r"NEXT DATE:\s*([^\r\n<]+)", orderdate_str)
-        last_date_match = re.search(r"Last Date:\s*([^\r\n<]+)", orderdate_str)
-
-        next_date = next_date_match.group(1).strip() if next_date_match else None
-        last_date = last_date_match.group(1).strip() if last_date_match else None
-
-        return next_date, last_date
 
     def scrape(self, **kwargs):
         """
@@ -103,7 +94,6 @@ class Scraper:
         print(f"👤 Petitioner: {petitioner}")
         print(f"👥 Respondent: {respondent}")
         cleaned_orderdate = data["orderdate"]
-        # next_date, last_date = self.getDates(cleaned_orderdate)
         next_date_match = re.search(r"NEXT DATE:\s*([^\r\n<]+)", cleaned_orderdate)
         last_date_match = re.search(r"Last Date:\s*([^\r\n<]+)", cleaned_orderdate)
 
