@@ -84,6 +84,8 @@ class Scraper:
 
         petitioner = data['pet'].split("<br>")[0]
         respondent = data['res']
+        petitioner = petitioner.replace("&amp;", "&")
+        respondent = respondent.replace("&amp;", "&")
         print(f"👤 Petitioner: {petitioner}")
         print(f"👥 Respondent: {respondent}")
 
@@ -94,7 +96,6 @@ class Scraper:
             return
 
         pdf_link = links[1]['href']
-        print("📄 Main PDF Link:", pdf_link)
 
         pdfLinks = self.getPDFLinks(pdf_link)
         print("📎 PDF Order Links:")
