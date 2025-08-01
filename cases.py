@@ -24,4 +24,9 @@ cases = [
         "case_number": "709",  # get this
         "case_year": "2018",
     },
+    {
+        "case_type": "ARB.P.",  # get this
+        "case_number": "70900",  # get this
+        "case_year": "2018",
+    },
 ]
