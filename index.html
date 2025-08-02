@@ -299,12 +299,18 @@
             })
                 .then(response => response.json())
                 .then(json => {
-                    console.log("requested data found")
-                    renderResult(json)
+                    
+                    if (json['error'] === NaN) {
+                        console.log("requested data found")
+                        renderResult(json)
+                    }
+                    else{
+                        console.log(json['error'])
+                        alert("Records not found")
+                    }
                 })
                 .catch(err => {
                     console.error(err);
-                    // alert
                 });
         });
     </script>
