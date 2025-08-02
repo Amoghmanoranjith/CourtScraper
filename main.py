@@ -14,7 +14,7 @@ def scrape_case():
     print("Received ",data, flush=True)
     required_keys = {'case_type', 'case_number', 'case_year'}
     if not data or not required_keys.issubset(data.keys()):
-        return jsonify({"error": "Missing required fields."}), 400
+        return jsonify({"error": "Missing required fields."})
 
     scraper = Scraper()
     result = scraper.scrape(
@@ -22,11 +22,9 @@ def scrape_case():
         case_number=data['case_number'],
         case_year=data['case_year']
     )
-
-    if not result:
-        return jsonify({"error": "Case not found or scraping failed."}), 404
-
-    return jsonify(result), 200
+    # store in db
+    # run this process parallely
+    return jsonify(result)
 
 @app.route('/download', methods = ['GET'])
 def proxy_download():

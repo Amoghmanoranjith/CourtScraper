@@ -76,16 +76,22 @@ class Scraper:
             f"\n🔍 Searching for Case: {kwargs['case_type']} {kwargs['case_number']}/{kwargs['case_year']}"
         )
         response = requests.get(self.url, headers=self.headers, params=self.params)
-        print("📶 Status code:", response.status_code)
+        # status can be 
         if response.status_code != 200:
-            print("❌ Request failed.")
-            return
+            print("Request failed.", response.status_code)
+            return {
+                "status":response.status_code,
+                "error":"site might be down or unreachable"
+            }
 
         try:
             data = response.json()["data"][0]
         except (ValueError, IndexError, KeyError):
-            print("❌ Failed to parse or no data available.")
-            return
+            print("")
+            return {
+                "status":404,
+                "error":"records not found"
+            }
 
         petitioner = data["pet"].split("<br>")[0]
         respondent = data["res"]
@@ -100,13 +106,10 @@ class Scraper:
 
 
         pdf_soup = BeautifulSoup(data["ctype"], "html.parser")
+        pdf_link = ''
         links = pdf_soup.find_all("a")
-        if len(links) < 2:
-            print("❌ No valid PDF link found.")
-            return
-
-        pdf_link = links[1]["href"]
-
+        if len(links) >= 2:
+            pdf_link = links[1]["href"]
         pdfLinks = self.getPDFLinks(pdf_link)
         # return 5 most recent files
         pdfLinks = pdfLinks[:5]
@@ -120,4 +123,5 @@ class Scraper:
             "next_date": next_date,
             "last_date": last_date,
             "pdf_links": pdfLinks,
+            "status": response.status_code
         }
