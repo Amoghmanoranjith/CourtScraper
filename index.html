@@ -280,7 +280,7 @@
             </tr>
         </thead>
         <tbody id="resultBody">
-            
+
         </tbody>
     </table>
 
@@ -338,12 +338,32 @@
                     downloadIcon.className = "fa fa-download";
                     downloadIcon.style.cursor = "pointer";
                     downloadIcon.style.marginLeft = "6px";
-                    downloadIcon.onclick = () => {
-                        const tempLink = document.createElement("a");
-                        tempLink.href = link;
-                        tempLink.download = `${data.case_type}_${data.case_number}/${data.case_year}_${index + 1}.pdf`; // Use default filename
-                        tempLink.click();
+                    downloadIcon.onclick = async () => {
+                        const document_id = link.split('/showlogo/')[1];
+                        const filename = `${data.case_type}_${data.case_number}_${data.case_year}_${index + 1}.pdf`;
+                        const requestUrl = `http://localhost:8000/download?document_id=${encodeURIComponent(document_id)}&filename=${encodeURIComponent(filename)}`;
+
+                        try {
+                            const response = await fetch(requestUrl);
+                            if (!response.ok) throw new Error("Failed to fetch PDF");
+
+                            const blob = await response.blob();
+                            const objectUrl = URL.createObjectURL(blob);
+
+                            const tempLink = document.createElement("a");
+                            tempLink.href = objectUrl;
+                            tempLink.download = filename;
+                            document.body.appendChild(tempLink);
+                            tempLink.click();
+                            document.body.removeChild(tempLink);
+
+                            URL.revokeObjectURL(objectUrl); // Cleanup
+                        } catch (err) {
+                            console.error("Download failed:", err);
+                            alert("Download failed.");
+                        }
                     };
+
 
                     const container = document.createElement("div");
                     container.style.marginBottom = "5px";
