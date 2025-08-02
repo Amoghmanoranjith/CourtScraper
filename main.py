@@ -4,7 +4,7 @@ from flask import Flask, request, jsonify, send_file, abort
 from flask_cors import CORS
 import requests
 from io import BytesIO
-
+from db import insert_log
 app = Flask(__name__)
 CORS(app)  
 
@@ -17,12 +17,13 @@ def scrape_case():
         return jsonify({"error": "Missing required fields."})
 
     scraper = Scraper()
-    result = scraper.scrape(
+    result, raw = scraper.scrape(
         case_type=data['case_type'],
         case_number=data['case_number'],
         case_year=data['case_year']
     )
-    # store in db
+    success = insert_log(data['case_type'], data['case_number'],int(data['case_year']),raw)
+    # store in a pgsql db time_stamp, case_type, case_number, case_year, data
     # run this process parallely
     return jsonify(result)
 

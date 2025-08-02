@@ -124,4 +124,4 @@ class Scraper:
             "last_date": last_date,
             "pdf_links": pdfLinks,
             "status": response.status_code
-        }
+        }, data
