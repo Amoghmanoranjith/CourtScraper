@@ -1,5 +1,5 @@
 ## Delhi High court
-- https://delhihighcourt.nic.in/app/get-case-type-status
+- https://delhihighcourt.nic.in
 
 ## Captcha workaround approach
 - Analysed the requests being sent using network devtools.
