@@ -82,7 +82,7 @@ class Scraper:
             return {
                 "status":response.status_code,
                 "error":"site might be down or unreachable"
-            }
+            }, ""
 
         try:
             data = response.json()["data"][0]
@@ -91,7 +91,7 @@ class Scraper:
             return {
                 "status":404,
                 "error":"records not found"
-            }
+            }, ""
 
         petitioner = data["pet"].split("<br>")[0]
         respondent = data["res"]

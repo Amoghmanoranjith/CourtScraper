@@ -22,7 +22,9 @@ def scrape_case():
         case_number=data['case_number'],
         case_year=data['case_year']
     )
-    success = insert_log(data['case_type'], data['case_number'],int(data['case_year']),raw)
+    if result['status'] == 200:
+        success = insert_log(data['case_type'], data['case_number'],int(data['case_year']),raw)
+        print("db logging status:",success)
     # store in a pgsql db time_stamp, case_type, case_number, case_year, data
     # run this process parallely
     return jsonify(result)
