@@ -1,13 +1,16 @@
 from cases import cases
 from scraper import Scraper
 from flask import Flask, request, jsonify
+from flask_cors import CORS
+
 
 app = Flask(__name__)
+CORS(app)  
 
 @app.route('/scrape', methods=['POST'])
 def scrape_case():
     data = request.get_json()
-
+    print("Received ",data, flush=True)
     required_keys = {'case_type', 'case_number', 'case_year'}
     if not data or not required_keys.issubset(data.keys()):
         return jsonify({"error": "Missing required fields."}), 400
