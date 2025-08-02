@@ -108,6 +108,7 @@ class Scraper:
         pdf_link = links[1]["href"]
 
         pdfLinks = self.getPDFLinks(pdf_link)
+        # return 5 most recent files
         pdfLinks = pdfLinks[:5]
 
         return {
