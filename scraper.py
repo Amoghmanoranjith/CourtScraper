@@ -91,8 +91,6 @@ class Scraper:
         respondent = data["res"]
         petitioner = petitioner.replace("&amp;", "&")
         respondent = respondent.replace("&amp;", "&")
-        print(f"👤 Petitioner: {petitioner}")
-        print(f"👥 Respondent: {respondent}")
         cleaned_orderdate = data["orderdate"]
         next_date_match = re.search(r"NEXT DATE:\s*([^\r\n<]+)", cleaned_orderdate)
         last_date_match = re.search(r"Last Date:\s*([^\r\n<]+)", cleaned_orderdate)
@@ -100,8 +98,7 @@ class Scraper:
         next_date = next_date_match.group(1).strip() if next_date_match else None
         last_date = last_date_match.group(1).strip() if last_date_match else None
 
-        print("Next Date:", next_date)
-        print("Last Date:", last_date)
+
         pdf_soup = BeautifulSoup(data["ctype"], "html.parser")
         links = pdf_soup.find_all("a")
         if len(links) < 2:
@@ -111,9 +108,8 @@ class Scraper:
         pdf_link = links[1]["href"]
 
         pdfLinks = self.getPDFLinks(pdf_link)
-        print("📎 PDF Order Links:")
-        for link in pdfLinks:
-            print("   ➤", link)
+        pdfLinks = pdfLinks[:5]
+
         return {
             "case_type": kwargs.get("case_type"),
             "case_number": kwargs.get("case_number"),
