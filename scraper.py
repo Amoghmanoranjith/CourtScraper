@@ -6,7 +6,9 @@ import re
 
 class Scraper:
     def __init__(self):
+        # url of bypassed api
         self.url = "https://delhihighcourt.nic.in/app/get-case-type-status"
+        # params to mimic web page request format
         self.params = {
             "draw": "2",
             "columns[0][data]": "DT_RowIndex",
@@ -41,8 +43,10 @@ class Scraper:
             "search[value]": "",
             "search[regex]": "false",
         }
+        # mimic an AJAX request
         self.headers = {"X-Requested-With": "XMLHttpRequest"}
 
+    # get the pdf links from webpage like https://delhihighcourt.nic.in/app/case-type-status-details
     def getPDFLinks(self, url):
         pdfLinks = []
         response = requests.get(url, headers=self.headers)
@@ -58,12 +62,8 @@ class Scraper:
             print("Failed to parse JSON.")
             return []
 
+    # takes input of case_type, case_number, and case_year and returns parsed response
     def scrape(self, **kwargs):
-        """
-        parties names ✅
-        filing and next hearing dates ✅
-        pdf links ✅
-        """
         self.params.update(
             {
                 "case_type": kwargs.get("case_type"),
@@ -71,49 +71,44 @@ class Scraper:
                 "case_year": kwargs.get("case_year"),
             }
         )
-
         print(
-            f"\n🔍 Searching for Case: {kwargs['case_type']} {kwargs['case_number']}/{kwargs['case_year']}"
+            f"Searching for Case: {kwargs['case_type']} {kwargs['case_number']}/{kwargs['case_year']}"
         )
         response = requests.get(self.url, headers=self.headers, params=self.params)
-        # status can be 
+        # handling response statuses from court api
         if response.status_code != 200:
             print("Request failed.", response.status_code)
             return {
-                "status":response.status_code,
-                "error":"site might be down or unreachable"
+                "status": response.status_code,
+                "error": "site might be down or unreachable",
             }, ""
-
+        # if response is empty means user gave invalid parameters
         try:
             data = response.json()["data"][0]
         except (ValueError, IndexError, KeyError):
             print("")
-            return {
-                "status":404,
-                "error":"records not found"
-            }, ""
-
+            return {"status": 404, "error": "records not found"}, ""
+        # parsing the pet and res names
         petitioner = data["pet"].split("<br>")[0]
         respondent = data["res"]
         petitioner = petitioner.replace("&amp;", "&")
         respondent = respondent.replace("&amp;", "&")
         cleaned_orderdate = data["orderdate"]
+        # parsing the dates part
         next_date_match = re.search(r"NEXT DATE:\s*([^\r\n<]+)", cleaned_orderdate)
         last_date_match = re.search(r"Last Date:\s*([^\r\n<]+)", cleaned_orderdate)
-
         next_date = next_date_match.group(1).strip() if next_date_match else None
         last_date = last_date_match.group(1).strip() if last_date_match else None
-
-
+        # extracting the link for the pdfs
         pdf_soup = BeautifulSoup(data["ctype"], "html.parser")
-        pdf_link = ''
+        pdf_link = ""
         links = pdf_soup.find_all("a")
         if len(links) >= 2:
             pdf_link = links[1]["href"]
+        # get the pdf links from that page   
         pdfLinks = self.getPDFLinks(pdf_link)
-        # return 5 most recent files
-        pdfLinks = pdfLinks[:5]
-
+        # return 3 most recent files
+        pdfLinks = pdfLinks[:3]
         return {
             "case_type": kwargs.get("case_type"),
             "case_number": kwargs.get("case_number"),
@@ -123,5 +118,5 @@ class Scraper:
             "next_date": next_date,
             "last_date": last_date,
             "pdf_links": pdfLinks,
-            "status": response.status_code
+            "status": response.status_code,
         }, data
