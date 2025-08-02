@@ -303,7 +303,9 @@
                         console.log("requested data found")
                         renderResult(json)
                     }
-                    else{
+                    else {
+                        const tbody = document.getElementById("resultBody");
+                        tbody.innerHTML = "";
                         console.log(json['error'], json['status'])
                         alert(json['error'])
                     }
