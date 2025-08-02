@@ -30,8 +30,8 @@ def scrape_case():
 
 @app.route('/download', methods = ['GET'])
 def proxy_download():
-    pdf_url = request.args.get('url')
-    filename = request.args.get("filename", "document.pdf")
+    pdf_url = "https://delhihighcourt.nic.in/app/showlogo/"+request.args.get('document_id')
+    filename = request.args.get("filename", "document") + ".pdf"
 
     if not pdf_url:
         return abort(400, "Missing 'url' parameter.")
