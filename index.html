@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Case Lookup</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         body {
             font-family: sans-serif;
@@ -268,6 +269,21 @@
 
         <button type="submit">Submit</button>
     </form>
+    <table id="resultTable" border="1" cellpadding="8">
+        <thead>
+            <tr>
+                <th>Petitioner</th>
+                <th>Respondent</th>
+                <th>Next Hearing Date</th>
+                <th>Last Hearing Date</th>
+                <th>PDF Links</th>
+            </tr>
+        </thead>
+        <tbody id="resultBody">
+            
+        </tbody>
+    </table>
+
     <script>
         document.getElementById('caseForm').addEventListener('submit', function (event) {
             event.preventDefault();
@@ -283,13 +299,65 @@
             })
                 .then(response => response.json())
                 .then(json => {
-                    document.getElementById('result').innerText = JSON.stringify(json, null, 2);
+                    console.log("requested data found")
+                    renderResult(json)
                 })
                 .catch(err => {
                     console.error(err);
-                    document.getElementById('result').innerText = "❌ Failed to fetch.";
+                    // alert
                 });
         });
+    </script>
+    <script>
+        function renderResult(data) {
+            const tbody = document.getElementById("resultBody");
+            tbody.innerHTML = "";  // clear previous results
+
+            const row = document.createElement("tr");
+
+            // Basic text fields
+            const fields = ['petitioner', 'respondent', 'next_date', 'last_date'];
+            for (let field of fields) {
+                const td = document.createElement("td");
+                td.textContent = data[field] || "N/A";
+                row.appendChild(td);
+            }
+
+            // PDF links column
+            const pdfTd = document.createElement("td");
+            if (data.pdf_links && data.pdf_links.length > 0) {
+                data.pdf_links.forEach((link, index) => {
+                    const a = document.createElement("a");
+                    a.href = link;
+                    a.textContent = `PDF ${index + 1}`;
+                    a.target = "_blank";
+                    a.style.marginRight = "8px";
+
+                    // Add FontAwesome download icon
+                    const downloadIcon = document.createElement("i");
+                    downloadIcon.className = "fa fa-download";
+                    downloadIcon.style.cursor = "pointer";
+                    downloadIcon.style.marginLeft = "6px";
+                    downloadIcon.onclick = () => {
+                        const tempLink = document.createElement("a");
+                        tempLink.href = link;
+                        tempLink.download = `${data.case_type}_${data.case_number}/${data.case_year}_${index + 1}.pdf`; // Use default filename
+                        tempLink.click();
+                    };
+
+                    const container = document.createElement("div");
+                    container.style.marginBottom = "5px";
+                    container.appendChild(a);
+                    container.appendChild(downloadIcon);
+                    pdfTd.appendChild(container);
+                });
+            } else {
+                pdfTd.textContent = "No PDFs";
+            }
+
+            row.appendChild(pdfTd);
+            tbody.appendChild(row);
+        }
     </script>
 </body>
 
