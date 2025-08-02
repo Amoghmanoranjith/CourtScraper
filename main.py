@@ -1,8 +1,9 @@
 from cases import cases
 from scraper import Scraper
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_file, abort
 from flask_cors import CORS
-
+import requests
+from io import BytesIO
 
 app = Flask(__name__)
 CORS(app)  
@@ -27,4 +28,25 @@ def scrape_case():
 
     return jsonify(result), 200
 
+@app.route('/download', methods = ['GET'])
+def proxy_download():
+    pdf_url = request.args.get('url')
+    filename = request.args.get("filename", "document.pdf")
+
+    if not pdf_url:
+        return abort(400, "Missing 'url' parameter.")
+
+    try:
+        resp = requests.get(pdf_url, stream=True, timeout=10)
+        resp.raise_for_status()
+        file_data = BytesIO(resp.content)
+
+        return send_file(
+            file_data,
+            mimetype="application/pdf",
+            as_attachment=True,
+            download_name=filename
+        )
+    except Exception as e:
+        return abort(500, f"Failed to fetch PDF: {str(e)}")
 app.run(host="0.0.0.0", port=8000, debug=True)
