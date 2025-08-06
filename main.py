@@ -1,12 +1,16 @@
 from cases import cases
 from scraper import Scraper
-from flask import Flask, request, jsonify, send_file, abort
+from flask import Flask, request, jsonify, send_file, abort, send_from_directory
 from flask_cors import CORS
 import requests
 from io import BytesIO
 from db import insert_log
 app = Flask(__name__)
 CORS(app)  
+
+@app.route('/')
+def serve_index():
+    return send_from_directory('.', 'index.html')
 
 @app.route('/scrape', methods=['POST'])
 def scrape_case():
