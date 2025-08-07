@@ -12,7 +12,7 @@
 - So i directly use this api thus completely bypassing the need to get token and cookies and performing captcha validation.
 
 ## Docker setup
--  docker run -e DB_URI="postgresql://neondb_owner:npg_K2PbWU9pyrxi@ep-weathered-bush-a14y86ex-pooler.ap-southeast-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require" -p 8000:8000 courtscraper
+-  docker run -e DB_URI=<DB_URI> -p 8000:8000 courtscraper
 
 
 ## API 
