@@ -8,14 +8,13 @@ from src.db import insert_log
 app = Flask(__name__)
 CORS(app)  
 
-@app.route('/')
+@app.route('/', methods = ['GET'])
 def serve_index():
     return send_from_directory('.', 'page/index.html')
 
 @app.route('/scrape', methods=['POST'])
 def scrape_case():
     data = request.get_json()
-    print("Received ",data, flush=True)
     required_keys = {'case_type', 'case_number', 'case_year'}
     if not data or not required_keys.issubset(data.keys()):
         return jsonify({"error": "Missing required fields."})
@@ -29,17 +28,16 @@ def scrape_case():
     if result['status'] == 200:
         success = insert_log(data['case_type'], data['case_number'],int(data['case_year']),raw)
         print("db logging status:",success)
-    # store in a pgsql db time_stamp, case_type, case_number, case_year, data
-    # run this process parallely
+
     return jsonify(result)
 
 @app.route('/download', methods = ['GET'])
 def proxy_download():
+    if not request.args.get('document_id'):
+        return abort(400, "Missing 'document_id' parameter.")
+    
     pdf_url = "https://delhihighcourt.nic.in/app/showlogo/"+request.args.get('document_id')
     filename = request.args.get("filename", "document") + ".pdf"
-
-    if not pdf_url:
-        return abort(400, "Missing 'url' parameter.")
 
     try:
         resp = requests.get(pdf_url, stream=True, timeout=10)
