@@ -12,8 +12,16 @@
 - So i directly use this api thus completely bypassing the need to get token and cookies and performing captcha validation.
 
 ## Docker setup
+-  docker pull amoghmanoranjithclg/courtscraper:latest
 -  docker run -e DB_URI=<DB_URI> -p 8000:8000 courtscraper
 
+## Folder setup
+- git clone github.com/Amoghmanoranjith/CourtScraper
+- cd CourtScraper
+- python -m venv env
+- source env/Scripts/activate
+- pip install -r requirements.txt
+- python main.py
 
 ## API 
 hosted on 0.0.0.0 port 8000 
