@@ -42,6 +42,7 @@ hosted on 0.0.0.0 port 8000
 - handle missing document_id in url params
 - if pdf does not exist return failed to fetch error
 
-
+## Working demo
+https://www.loom.com/share/ee4618a6792344948ab1f4fac3d35f64?sid=5361a7e9-fd6f-442c-938c-ab54c54e8a99
 
 
